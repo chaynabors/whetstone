@@ -1,0 +1,68 @@
+use std::collections::HashMap;
+use std::str::FromStr;
+
+use crate::ast::Variable;
+
+grammar<'a>(state: &'a mut HashMap<&'input str, Variable>);
+
+match {
+    r"true|false",
+    _
+}
+
+Identifier: &'input str = r"[a-z_][a-z0-9_]*" => <>;
+
+Boolean: bool = r"true|false" => bool::from_str(<>).unwrap();
+Integer: i64 = r"[+-]?[0-9]+" => i64::from_str(<>).unwrap();
+Float: f64 = r"[+-]?([0-9]*\.[0-9]+)|([0-9]+\.[0-9]*)" => f64::from_str(<>).unwrap();
+String: String = <s:r#""[^"]+""#> => s.trim_matches('"').to_string();
+
+Literal: Variable = {
+    <b:Boolean> => Variable::Boolean(b),
+    <i:Integer> => Variable::Integer(i),
+    <f:Float> => Variable::Float(f),
+    <s:String> => Variable::String(s),
+};
+
+Term: Variable = {
+    Literal,
+    <i:Identifier> => state.get(i).unwrap().clone(),
+    "(" <Expression> ")",
+};
+
+Factor: Variable = {
+    <l:Factor> "*" <r:Term> => l.multiply(r),
+    <l:Factor> "/" <r:Term> => l.divide(r),
+    Term,
+};
+
+Expression: Variable = {
+    <l:Expression> "+" <r:Factor> => l.add(r),
+    <l:Expression> "-" <r:Factor> => l.subtract(r),
+    Factor,
+};
+
+BoolExpression: Variable = {
+    <l:Expression> "==" <r:Expression> => l.equals(r),
+    Expression,
+};
+
+Comment: () = {
+    r"//[^\n\r]*[\n\r]*",
+};
+
+Statement: () = {
+    Comment => {},
+    <i:Identifier> "=" <v:BoolExpression> ";" => { state.insert(i, v); },
+    "assert" <v:BoolExpression> ";" => {
+        match v {
+            Variable::Boolean(v) => assert!(v),
+            _ => todo!(),
+        }
+    },
+    "print" <v:BoolExpression> ";" => println!("{}", v),
+};
+
+pub Script = {
+    Statement*,
+};

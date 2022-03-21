@@ -2,7 +2,12 @@
 name = "whetstone"
 version = "0.1.0"
 edition = "2021"
+build = "build.rs"
+
+[build-dependencies]
+lalrpop = "0.19.7"
 
 [dependencies]
 clap = { version = "3.1.6", features = ["derive"] }
-nom = "7.1.0"
+lalrpop-util = { version = "0.19.7", features = ["lexer"] }
+regex = "1.5.5"

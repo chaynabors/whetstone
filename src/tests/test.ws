@@ -2,33 +2,33 @@
 // Hello I'm a comment
 
 // Assignment
-let x = 10;
-std::assert(x, 10);
+x = 10;
+assert x == 10;
 
 // Print
-let y = "hello"
-std::assert(y, "hello");
-std::print(y);
+y = "hello"
+assert y == "hello";
 
 // Comparison
 if y == "hello" then std::print("goodbye");
 
 // Scope
 {
-    let y = "goodbye";
-    std::assert(y, "goodbye");
+    y = "goodbye";
+    assert y == "goodbye";
 }
-std::assert(y, "hello");
+assert y == "hello";
 
 // Function
 fn hello_world() {
-    std::print("hello_world");
+    print "hello_world";
 }
+
 hello_world();
 
 // Function arg
 fn print(str) {
-    std::print(str);
+    print str;
 }
 
 // Function return
@@ -37,7 +37,7 @@ fn zero() -> zero {
     0
 }
 
-let zero = zero();
+zero = zero();
 
 // Function return multiple
 fn zero_one() -> [zero, one] {
